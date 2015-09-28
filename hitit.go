@@ -70,7 +70,10 @@ func toSeconds(nanoseconds float64) float64 {
 func makeRequest(url string, timeMilliseconds int) <-chan float64 {
 	out := make(chan float64)
 	go func() {
-		sleep(timeMilliseconds)
+
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		time.Sleep(time.Duration(r.Intn(timeMilliseconds)) * time.Millisecond)
+
 		startTime := time.Now()
 		_, err := http.Get(url)
 		if err == nil {
@@ -79,11 +82,6 @@ func makeRequest(url string, timeMilliseconds int) <-chan float64 {
 		close(out)
 	}()
 	return out
-}
-
-func sleep(timeMilliseconds int) {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	time.Sleep(time.Duration(r.Intn(timeMilliseconds)) * time.Millisecond)
 }
 
 func merge(cs []<-chan float64) <-chan float64 {
